@@ -1,11 +1,17 @@
 
-import requests
+import os
 import streamlit as st
+import requests
+try:
+    for key in ("VOYAGE_API_KEY", "GROQ_API_KEY"):
+        if key in st.secrets:
+            os.environ[key] = st.secrets[key]
+except Exception:
+    pass
+
 from backend.knowledge_base import index_pdf
 from backend.semantic_search import search_chunks
 from backend.answer_generator import generate_answer
-
-API_URL = "http://127.0.0.1:8000"
 
 st.set_page_config(
     page_title="Nexus AI",
@@ -72,24 +78,6 @@ st.markdown(
     """,
     unsafe_allow_html=True,
 )
-
-st.subheader("System Status")
-
-try:
-    response = requests.get(
-        f"{API_URL}/health",
-        timeout=3,
-    )
-    response.raise_for_status()
-    status = response.json()["status"]
-
-    st.success(f"Backend connected · {status}")
-
-except requests.RequestException:
-    st.error(
-        "Backend is unavailable. "
-        "Start the FastAPI server and try again."
-    )
 
 
 st.divider()
