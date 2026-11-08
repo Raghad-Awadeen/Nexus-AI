@@ -1,6 +1,12 @@
 
 import os
 import streamlit as st
+import sys
+from pathlib import Path
+
+ROOT_DIR = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT_DIR))
+
 import requests
 try:
     for key in ("VOYAGE_API_KEY", "GROQ_API_KEY"):
