@@ -42,11 +42,13 @@ def generate_embedding(
     return result.embeddings[0]
 
 
+
 def generate_embeddings(
     texts: list[str],
     input_type: str = "document",
+    batch_size: int = 16,
 ) -> list[list[float]]:
-    """Generate embeddings for multiple texts in one API request."""
+    """Generate embeddings in smaller batches using Voyage AI."""
 
     if not texts:
         raise ValueError("Texts list cannot be empty")
@@ -57,13 +59,23 @@ def generate_embeddings(
     if input_type not in {"query", "document"}:
         raise ValueError("input_type must be 'query' or 'document'")
 
+    if batch_size <= 0:
+        raise ValueError("batch_size must be greater than zero")
+
     client = voyageai.Client()
+    all_embeddings = []
 
-    result = client.embed(
-        texts=texts,
-        model="voyage-4-lite",
-        input_type=input_type,
-    )
+    for i in range(0, len(texts), batch_size):
+        batch = texts[i:i + batch_size]
 
-    return result.embeddings
+        result = client.embed(
+            texts=batch,
+            model="voyage-4-lite",
+            input_type=input_type,
+        )
+
+        all_embeddings.extend(result.embeddings)
+
+    return all_embeddings
+
 
